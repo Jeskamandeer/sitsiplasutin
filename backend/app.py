@@ -1,5 +1,7 @@
+
 from flask import Flask
-from flask import send_file, Response, send_from_directory
+from flask import send_file, Response, send_from_directory, request
+
 from main import create_tables
 import io
 import csv
@@ -10,9 +12,12 @@ app = Flask(__name__)
 def hello_world():
     return "<p>Hello, World!</p>"
     
-@app.route("/sitsiplasutin")
+@app.route("/sitsiplasutin", methods=['POST'])
 def create_seating():
-    
+
+    json = request.json
+    print(request)
+    print(json)
     poydat = [30, 10]
     csv_file = create_tables(poydat=poydat, sitsers="./datafiles/sample.xlsx")
 
@@ -33,3 +38,4 @@ def create_seating():
 
 if __name__ == "__main__":
     app.run(debug = True, host = '0.0.0.0')
+
