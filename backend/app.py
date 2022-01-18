@@ -1,40 +1,39 @@
 
 from flask import Flask
-from flask import send_file, Response, send_from_directory, request
-
+from flask import request, make_response, jsonify
 from main import create_tables
-import io
-import csv
+from flask_cors import CORS
+import json
+import logging
+
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 app = Flask(__name__)
+CORS(app)
 
-@app.route("/")
-def hello_world():
-    return "<p>Hello, World!</p>"
-    
-@app.route("/sitsiplasutin", methods=['POST'])
+@app.route("/sitsiplasutin", methods=["POST", "GET"])
 def create_seating():
+    # TODO Add data validation, Better Data parses, Error handling, Schema
+    try:
+        form_data = json.loads(request.form["json"])
+        poydat = list((form_data["table_sizes"]).split(","))
+        poydat = list(map(int, poydat))
 
-    json = request.json
-    print(request)
-    print(json)
-    poydat = [30, 10]
-    csv_file = create_tables(poydat=poydat, sitsers="./datafiles/sample.xlsx")
+        sitsers_csv = request.files["sitsers_csv"]
 
-    mem = io.BytesIO()
-    mem.write(csv_file.getvalue().encode())
+        filled_tables = create_tables(poydat=poydat, sitsers=sitsers_csv)
+
+        json_data = []
+        for i in range(0, len(filled_tables)):
+            json_data.append((filled_tables[i].tolist()))
+        
+        response = make_response(jsonify(json_data), 200)
+        
+        return response
     
-    # seeking was necessary. Python 3.5.2, Flask 0.12.2
-    mem.seek(0)
-    csv_file.close()
-
-    return send_file(
-        mem,
-        as_attachment=True,
-        attachment_filename='plaseeraus.csv',
-        mimetype='text/csv'
-    )
-
+    except:
+        logging.warning('Nyt meni jottain vikkaan')
+        return make_response("SÄRKI", 400)
 
 if __name__ == "__main__":
     app.run(debug = True, host = '0.0.0.0')

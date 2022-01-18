@@ -84,7 +84,7 @@ def write_excel(filled_tables):
                                                     sep=";"
                                                     )
         data.write("\r\n")
-
+        
     return data
 
 
@@ -125,7 +125,5 @@ def create_tables(poydat, sitsers="./datafiles/sample.xlsx", shuffle_limit=10):
         np_table = np_table[max_table_size:]
         
     
-    stringIO_csv = write_excel(filled_tables=filled_tables)
-    
-    return stringIO_csv
+    return filled_tables
 
