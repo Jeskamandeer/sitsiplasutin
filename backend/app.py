@@ -31,8 +31,9 @@ def create_seating():
         
         return response
     
-    except:
+    except Exception as err:
         logging.warning('Nyt meni jottain vikkaan')
+        logging.warning(err)
         return make_response("SÄRKI", 400)
 
 if __name__ == "__main__":

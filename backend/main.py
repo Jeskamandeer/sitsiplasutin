@@ -1,3 +1,4 @@
+from urllib import response
 import pandas as pd
 import numpy as np
 from io import StringIO
@@ -45,7 +46,7 @@ def table_shuffler(miehet, naiset, ylijaavat):
             shuffled = shuffled.append(naiset.iloc[i], ignore_index=True)
             shuffled = shuffled.append(miehet.iloc[i], ignore_index=True)
 
-    if len(ylijaavat) == 0: return shuffled
+    if (len(ylijaavat) == 0): return shuffled
     
     for i in range (0, len(ylijaavat)):
         rand_idx = np.random.randint(0, len(ylijaavat))
@@ -60,6 +61,7 @@ def get_excess_people(miehet, naiset):
     m_miehet = len(miehet)
     m_naiset = len(naiset)
 
+
     erotus = abs(m_miehet - m_naiset)
 
     if m_miehet > m_naiset:
@@ -67,7 +69,7 @@ def get_excess_people(miehet, naiset):
     if m_miehet < m_naiset:
         return naiset[m_naiset - erotus:]
     else:
-        return 0
+        return []
     
 
 def table_generator(pituus, np_table):
@@ -91,7 +93,7 @@ def write_excel(filled_tables):
 def create_tables(poydat, sitsers="./datafiles/sample.xlsx", shuffle_limit=10):
 
     df = pd.read_excel(sitsers)
-
+    
     # Picks both genders into their own table and shuffles them
     df = sovinistinen_algoritmi(df)
     
@@ -102,9 +104,12 @@ def create_tables(poydat, sitsers="./datafiles/sample.xlsx", shuffle_limit=10):
     for i in range(1, shuffle_limit):
         miehet = miehet.sample(frac=1).reset_index(drop=True)
         naiset = naiset.sample(frac=1).reset_index(drop=True)
-
+    
     # Checks if there are more males or females in attendees, returns array of people that dont fit normally 
     ylijaavat = get_excess_people(miehet, naiset)
+    if (ylijaavat == 0):
+        return response
+    # TODO possible indexer out-of-bounds error
 
     # Merges two DF's into single list with right order
     sorted_df = table_shuffler(miehet, naiset, ylijaavat)
